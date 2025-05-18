@@ -89,10 +89,6 @@ export default {
 
       return new Response("Not found", {status:404});
     }
-    // 静态资源
-    if (url.pathname === "/" || url.pathname.startsWith("/index.html") || url.pathname.startsWith("/imgsteak.") || url.pathname.startsWith("/bootstrap.") || url.pathname.startsWith("/fontawesome.")) {
-      return staticResp(url.pathname, request);
-    }
     // 404
     return new Response("Not found", { status: 404 });
   }
