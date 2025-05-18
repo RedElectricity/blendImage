@@ -20,6 +20,9 @@ function ext(path) {
   return path.slice(path.lastIndexOf('.')).toLowerCase();
 }
 function staticResp(path, request) {
+  if (path === "/") {
+    path = "/index.html";
+  }
   return fetch(new URL(path, request.url).href)
     .then(response => {
       if (!response.ok) throw new Error('Not found');
@@ -87,7 +90,7 @@ export default {
       return new Response("Not found", {status:404});
     }
     // 静态资源
-    if (url.pathname === "/" || url.pathname.startsWith("/imgsteak.") || url.pathname.startsWith("/bootstrap.") || url.pathname.startsWith("/fontawesome.")) {
+    if (url.pathname === "/" || url.pathname.startsWith("/index.html") || url.pathname.startsWith("/imgsteak.") || url.pathname.startsWith("/bootstrap.") || url.pathname.startsWith("/fontawesome.")) {
       return staticResp(url.pathname, request);
     }
     // 404
