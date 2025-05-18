@@ -65,69 +65,6 @@ export default {
         }
       }
 
-      // --------- 图片处理 API -----------
-      if (url.pathname === "/api/process" && request.method === "POST") {
-        const form = await request.formData();
-        const blendMode = form.get('blendMode') || 'normal';
-        const removeBg = form.get('removeBg') === '1';
-        const bgColor = form.get('bgColor') || '#ffffff';
-        const tolerance = parseInt(form.get('tolerance')) || 30;
-        const invertColors = form.get('invertColors') === '1';
-        const files = form.getAll('images');
-        if (!files.length) return new Response('No images', {status:400});
-
-        // 解码所有图片
-        const bitmaps = [];
-        for (const file of files) {
-          try {
-            const arr = new Uint8Array(await file.arrayBuffer());
-            const bitmap = await createImageBitmap(new Blob([arr]));
-            bitmaps.push(bitmap);
-          } catch(e) {}
-        }
-        if (!bitmaps.length) return new Response('图片解码失败',{status:400});
-
-        // 合成
-        const w = bitmaps[0].width, h = bitmaps[0].height;
-        const offscreen = new OffscreenCanvas(w, h);
-        const ctx2d = offscreen.getContext('2d');
-        ctx2d.clearRect(0,0,w,h);
-        ctx2d.globalCompositeOperation = 'source-over';
-        ctx2d.drawImage(bitmaps[0],0,0);
-
-        for(let i=1; i<bitmaps.length; ++i) {
-          ctx2d.globalCompositeOperation = blendMode;
-          ctx2d.drawImage(bitmaps[i],0,0);
-        }
-        ctx2d.globalCompositeOperation = 'source-over';
-
-        // 像素级处理
-        if (removeBg || invertColors) {
-          const imgData = ctx2d.getImageData(0,0,w,h);
-          const data = imgData.data;
-          const bgR = parseInt(bgColor.substr(1,2),16);
-          const bgG = parseInt(bgColor.substr(3,2),16);
-          const bgB = parseInt(bgColor.substr(5,2),16);
-          for(let i=0; i<data.length; i+=4) {
-            const r=data[i],g=data[i+1],b=data[i+2];
-            // 去背景
-            if (removeBg) {
-              const diff = Math.sqrt(
-                (r-bgR)*(r-bgR)+(g-bgG)*(g-bgB)+(b-bgB)*(b-bgB)
-              );
-              if (diff < tolerance) data[i+3]=0;
-            }
-            // 反色
-            if (invertColors) {
-              data[i]=255-r; data[i+1]=255-g; data[i+2]=255-b;
-            }
-          }
-          ctx2d.putImageData(imgData,0,0);
-        }
-        // 输出PNG
-        const blob = await offscreen.convertToBlob({type:'image/png'});
-        return new Response(blob, {headers:{'content-type':'image/png'}});
-      }
       return new Response("Not found", {status:404});
     }
     // 静态资源
