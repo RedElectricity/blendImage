@@ -19,8 +19,8 @@ const MIME_MAP = {
 function ext(path) {
   return path.slice(path.lastIndexOf('.')).toLowerCase();
 }
-function staticResp(path) {
-  return fetch(new URL(path, import.meta.url).href)
+function staticResp(path, request) {
+  return fetch(new URL(path, request.url).href)
     .then(response => {
       if (!response.ok) throw new Error('Not found');
       return response;
@@ -69,7 +69,7 @@ export default {
     }
     // 静态资源
     if (url.pathname === "/" || url.pathname.startsWith("/imgsteak.") || url.pathname.startsWith("/bootstrap.") || url.pathname.startsWith("/fontawesome.")) {
-      return staticResp(url.pathname);
+      return staticResp(url.pathname, request);
     }
     // 404
     return new Response("Not found", { status: 404 });
