@@ -87,9 +87,9 @@ export default {
         }
       }
 
-      return new Response("Not found", {status:404});
+      return new Response("Not found", { status: 404 });
     }
-    // 404
-    return new Response("Not found", { status: 404 });
+    // Handle other static files
+    return staticResp(url.pathname, request);
   }
 };
