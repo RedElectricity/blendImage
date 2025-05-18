@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>图片处理工具 Cloudflare</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="bootstrap.min.css" rel="stylesheet">
+  <link href="fontawesome.min.css" rel="stylesheet">
+  <style>
+    .image-thumb {
+      max-width: 100%;
+      max-height: 120px;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin: 0 auto;
+      display: block;
+    }
+    .img-card {
+      position: relative;
+      border: 1px solid #eee;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .img-remove {
+      position: absolute;
+      right: 6px;
+      top: 6px;
+      background: #fff;
+      border: none;
+      border-radius: 50%;
+      color: #dc3545;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .img-remove:hover {
+      opacity: 1;
+      color: #fff;
+      background: #dc3545;
+    }
+    #toastContainer { z-index: 2000; }
+  </style>
+</head>
+<body class="bg-light">
+  <div class="container py-4">
+    <header class="mb-4 text-center">
+      <h1 class="display-5 fw-bold text-primary">图片处理工具 (Cloudflare版)</h1>
+      <p class="text-secondary">由 Cloudflare Worker 托管与处理</p>
+    </header>
+
+    <div class="card shadow mb-4">
+      <div class="card-body">
+        <label for="albumUrl" class="form-label">图集URL</label>
+        <div class="input-group mb-3">
+          <input type="url" id="albumUrl" class="form-control" placeholder="请输入图集URL">
+          <button id="fetchBtn" class="btn btn-primary">解析</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow mb-4">
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">上传图片</label>
+          <input type="file" id="fileInput" accept="image/*" multiple class="form-control">
+        </div>
+        <div id="imageList" class="row g-3"></div>
+        <button id="clearImagesBtn" class="btn btn-outline-danger mt-2" style="display:none;">清空图片</button>
+      </div>
+    </div>
+
+    <div class="card shadow mb-4">
+      <div class="card-body row g-3">
+        <div class="col-md-4">
+          <label class="form-label">叠加方式</label>
+          <select id="blendMode" class="form-select">
+            <option value="normal">正常</option>
+            <option value="multiply">正片叠底</option>
+          </select>
+        </div>
+        <div class="col-md-4 form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="removeBg">
+          <label class="form-check-label" for="removeBg">去除背景</label>
+        </div>
+        <div class="col-md-4 form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="invertColors">
+          <label class="form-check-label" for="invertColors">反转颜色</label>
+        </div>
+        <div id="bgOptions" class="col-12" style="display:none;">
+          <label class="form-label">背景色</label>
+          <input type="color" id="bgColor" value="#FFFFFF" class="form-control form-control-color" style="width:3rem;">
+          <label class="form-label mt-2">容差 <span id="toleranceValue">30</span></label>
+          <input type="range" id="tolerance" min="0" max="100" value="30" class="form-range">
+        </div>
+        <div class="col-12">
+          <button id="processBtn" class="btn btn-success w-100">处理图片</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow mb-4">
+      <div class="card-body text-center">
+        <canvas id="previewCanvas" class="border rounded shadow" style="max-width:100%; display:none;"></canvas>
+        <div id="noPreview" class="text-secondary py-5">上传图片并处理后预览</div>
+        <button id="downloadBtn" class="btn btn-primary mt-3" style="display:none;">下载处理后图片</button>
+      </div>
+    </div>
+  </div>
+  <div id="toastContainer" class="position-fixed bottom-0 end-0 p-3"></div>
+  <script src="imgsteak.js"></script>
+</body>
+</html>
