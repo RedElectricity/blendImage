@@ -1,5 +1,6 @@
  {
   "name": "blendimage",
   "compatibility_date": "2025-05-18",
-  "main": "worker.js"
+  "main": "worker.js",
+  "log": "true"
 }
