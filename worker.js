@@ -47,7 +47,7 @@ export default {
             if (data.images && data.images.length > 0) {
               // 取 download_url_list[1]
               const images = data.images.map(el => el.download_url_list?.[1] || el.download_url_list?.[0]);
-              return Response.json({ images });
+              return Response.json({ images , data});
             }
           }
         } catch (e) {
