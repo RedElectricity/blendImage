@@ -42,8 +42,7 @@ export default {
         // 优先尝试 douyin.wtf 图集API
         try {
           const apiResp = await fetch(
-            `https://douyin.wtf/api/hybrid/video_data?url=${encodeURIComponent(albumUrl)}`,
-            { headers: { "Referer": "https://douyin.wtf/", "Origin": "https://douyin.wtf" } }
+            `https://douyin.wtf/api/hybrid/video_data?url=${encodeURIComponent(albumUrl)}`
           );
           if (apiResp.ok) {
             const data = await apiResp.json();
