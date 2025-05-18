@@ -4,6 +4,8 @@
   "main": "worker.js",
   "observability":{
     "enabled": true,
-    "logs": true
+    "logs": {
+      "enabled": true
+    }
   }
 }
