@@ -10,11 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewCanvas = document.getElementById('previewCanvas');
   const noPreview = document.getElementById('noPreview');
   const downloadBtn = document.getElementById('downloadBtn');
+  const fetchBtn = document.getElementById('fetchBtn');
+  const albumUrlInput = document.getElementById('albumUrl');
+  const debugToggle = document.getElementById('debugToggle');
+  const debugInfoSection = document.getElementById('debugInfoSection');
 
   fileInput.addEventListener('change', handleFileSelect);
   clearImagesBtn.addEventListener('click', clearImages);
   removeBgCheckbox.addEventListener('change', handleRemoveBgChange);
   processBtn.addEventListener('click', processImages);
+  fetchBtn.addEventListener('click', fetchAlbumImages);
+  debugToggle.addEventListener('change', toggleDebugInfo);
 
   function handleFileSelect(event) {
     const files = event.target.files;
@@ -156,5 +162,64 @@ document.addEventListener('DOMContentLoaded', () => {
       link.download = 'processed_image.png';
       link.click();
     });
+  }
+
+  async function fetchAlbumImages() {
+    const albumUrl = albumUrlInput.value;
+    if (!albumUrl) return;
+
+    try {
+      const response = await fetch('/api/parse-album', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: albumUrl })
+      });
+      const data = await response.json();
+      const images = data.images;
+      const debugInfo = data.debugInfo;
+
+      imageList.innerHTML = '';
+      for (const imageUrl of images) {
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.classList.add('image-thumb');
+        const imgCard = document.createElement('div');
+        imgCard.classList.add('col-md-3', 'img-card');
+        imgCard.appendChild(img);
+        const removeBtn = document.createElement('button');
+        removeBtn.classList.add('img-remove');
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.addEventListener('click', () => {
+          imgCard.remove();
+          if (imageList.children.length === 0) {
+            clearImagesBtn.style.display = 'none';
+          }
+        });
+        imgCard.appendChild(removeBtn);
+        imageList.appendChild(imgCard);
+      }
+      clearImagesBtn.style.display = 'block';
+
+      if (debugToggle.checked) {
+        displayDebugInfo(debugInfo);
+      }
+    } catch (error) {
+      console.error('Error fetching album images:', error);
+    }
+  }
+
+  function toggleDebugInfo(event) {
+    if (event.target.checked) {
+      debugInfoSection.style.display = 'block';
+    } else {
+      debugInfoSection.style.display = 'none';
+    }
+  }
+
+  function displayDebugInfo(debugInfo) {
+    debugInfoSection.innerHTML = `
+      <h5>Debug Information</h5>
+      <pre>${JSON.stringify(debugInfo, null, 2)}</pre>
+    `;
   }
 });

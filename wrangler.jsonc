@@ -1,6 +1,6 @@
  {
   "name": "blendimage",
-  "compatibility_date": "2025-05-18",
+  "compatibility_date": "2023-05-18",
   "main": "worker.js",
   "observability":{
     "logs": true

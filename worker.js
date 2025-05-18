@@ -47,10 +47,17 @@ export default {
             if (data.images && data.images.length > 0) {
               // 取 download_url_list[1]
               const images = data.images.map(el => el.download_url_list?.[1] || el.download_url_list?.[0]);
-              return Response.json({ images , data});
+              const debugInfo = {
+                requestHeaders: [...request.headers.entries()],
+                responseStatus: apiResp.status,
+                responseHeaders: [...apiResp.headers.entries()]
+              };
+              console.log("API Response:", { images, debugInfo });
+              return Response.json({ images, debugInfo });
             }
           }
         } catch (e) {
+          console.error("Error fetching from douyin.wtf API:", e);
           // 如果API失败，则继续用html方式兜底
         }
         // Fallback: 普通网页图片提取
@@ -59,9 +66,21 @@ export default {
           const images = [...html.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)]
             .map(m=>m[1])
             .filter(src => /\.(jpg|jpeg|png|gif|webp)$/i.test(src));
-          return Response.json({ images });
+          const debugInfo = {
+            requestHeaders: [...request.headers.entries()],
+            responseStatus: 200,
+            responseHeaders: []
+          };
+          console.log("Fallback HTML parsing:", { images, debugInfo });
+          return Response.json({ images, debugInfo });
         } catch(e) {
-          return Response.json({ images: [] });
+          console.error("Error parsing HTML:", e);
+          const debugInfo = {
+            requestHeaders: [...request.headers.entries()],
+            responseStatus: 500,
+            responseHeaders: []
+          };
+          return Response.json({ images: [], debugInfo });
         }
       }
 
